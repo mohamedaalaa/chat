@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
+  final void Function(
+    String email,
+    String password,
+    String userName,
+    bool isLogin,
+    BuildContext context,
+  ) submitUser;
 
-  final void Function(String email, String password, String userName, bool isLogin) submitUser;
-
-  const AuthForm({Key? key,required this.submitUser}) : super(key: key);
+  const AuthForm({
+    Key? key,
+    required this.submitUser,
+  }) : super(key: key);
 
   @override
   _AuthFormState createState() => _AuthFormState();
@@ -15,17 +23,24 @@ class _AuthFormState extends State<AuthForm> {
   String _email = '';
   String _userName = '';
   String _password = '';
+  var _isLoading=false;
+
   final _formKey = GlobalKey<FormState>();
 
-  void _trySubmit() {
+  void _trySubmit(BuildContext context) {
     bool isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
     if (isValid) {
       _formKey.currentState!.save();
       widget.submitUser(
-        _email,_password,_userName,isLogin
+        _email.trim(),
+        _password.trim(),
+        _userName.trim(),
+        isLogin,
+        context,
       );
     }
+    return;
   }
 
   @override
@@ -87,12 +102,14 @@ class _AuthFormState extends State<AuthForm> {
                     height: 12,
                   ),
                   ElevatedButton(
-                      onPressed: _trySubmit,
+                      onPressed: () {
+                        _trySubmit(context);
+                      },
                       child: Text(isLogin ? 'Login' : 'Signup')),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          isLogin = false;
+                          isLogin = !isLogin;
                         });
                       },
                       child: Text(isLogin

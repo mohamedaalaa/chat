@@ -1,6 +1,12 @@
+import 'package:chat/screens/authentication_screen.dart';
+import 'package:chat/screens/chat_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -21,7 +27,15 @@ class MyApp extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
         )
       ),
-      //home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.idTokenChanges(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if(snapshot.hasData){
+            return const ChatScreen();
+          }else{
+            return const AuthenticationScreen();
+          }
+        },),
     );
   }
 }
